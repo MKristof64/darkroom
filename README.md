@@ -9,7 +9,7 @@ Mobilra optimalizált, magyar társasjáték közös online szobákkal.
 ## Játékmenet
 
 - A házigazda hatjegyű kóddal és meghívólinkkel megosztható szobát hoz létre.
-- Minden körben véletlen betű és 7 különböző téma érkezik a 18 témából.
+- Minden körben véletlen betű és 7 különböző téma érkezik a 26 témából.
 - Egyedi válasz: **1 pont**. Azonos vagy üres válasz: **0 pont**. A kis- és nagybetűk azonosnak számítanak; a pontozás az ékezeteket és az ismételt szóközöket is egységesíti. Rossz kezdőbetű: 0 pont.
 - A házigazda eltávolíthat játékosokat, és az értékeléskor javíthatja a válaszok pontját és a játékos összpontszámát.
 - Telefonon egymás alatt jelennek meg a mezők, az időzítő görgetés közben is látható, az Enter a következő mezőre lép.

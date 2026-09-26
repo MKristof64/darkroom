@@ -27,7 +27,7 @@ const s=makeRoom('123456','host','Házigazda','private-host');
 s.players.push({id:'guest',name:'Vendég',hash:'private-guest',removed:false});
 const host=s.players[0], guest=s.players[1];
 for(let i=0;i<2000;i++)assert.match(makeCode(),/^\d{6}$/);
-assert.equal(TOPICS.length,18);
+assert.equal(TOPICS.length,26);
 assert.throws(()=>apply(s,guest,'start'),/házigazda/);
 apply(s,host,'start');
 assert.equal(s.rounds[0].topics.length,7);assert.equal(new Set(s.rounds[0].topics).size,7);
