@@ -31,7 +31,7 @@ A GitHub Pages a `main` ág `/docs` könyvtárát szolgálja ki. A `build:pages`
 
 A Pages felülete a https://orszag-varos-after-dark.kristof-madarasz159.chatgpt.site címen működő játékszervert használja. A szerver D1 adatbázisban tárolja a szobákat, privát játékostokennel ellenőrzi a jogosultságokat, és egyszerre érkező mentésekre is felkészült. A GitHub Pages felület eredetét a szerver külön engedélyezi.
 
-A szerver nélküli statikus tárhely önmagában nem kezeli a közös szobákat. Másik szerverhez a Pages build előtt a `VITE_API_ORIGIN` környezeti változót kell beállítani; a szerveren engedélyezni kell a felület pontos eredetét is. A szerver buildje: `npm run build`. Az adatbázis migrációja a `drizzle` könyvtárban található.
+A szerver nélküli statikus tárhely önmagában nem kezeli a közös szobákat. Másik szerverhez a Pages build előtt a `VITE_API_ORIGIN` környezeti változót kell beállítani; a szerveren engedélyezni kell a felület pontos eredetét is. A szerver buildje: `npm run build`. Az adatbázis migrációja a `drizzle` könyvtárban található. Az első API-kérés szükség esetén létrehozza a kezdeti szobatáblát; a meglévő adatokat megőrzi.
 
 Valódi HTTP/D1 integrációs ellenőrzés futó fejlesztői szerveren:
 
