@@ -47,7 +47,59 @@ apply(s,host,'start');assert.equal(s.rounds.at(-1).players.length,1);
 assert.throws(()=>apply(s,host,'answers',{roundId:r.id,answers:Array(7).fill('')}),/lezárult/);
 assert.equal(expire(s,s.rounds.at(-1).deadline+1),true);assert.equal(s.phase,'review');
 const deck=makeRoom('222222','h','H','x');for(let i=0;i<LETTERS.length;i++){apply(deck,deck.players[0],'start');apply(deck,deck.players[0],'stop',{roundId:deck.rounds.at(-1).id});}assert.equal(new Set(deck.rounds.map(r=>r.letter)).size,LETTERS.length);apply(deck,deck.players[0],'start');assert.equal(deck.usedLetters.length,1);
+const revisions=makeRoom('333333','h','H','secret');
+revisions.players.push({id:'g',name:'G',hash:'secret-guest',removed:false});
+apply(revisions,revisions.players[0],'start');const revisionRound=revisions.rounds.at(-1);
+const freshAnswers=Array(7).fill(revisionRound.letter+' új válasz');
+apply(revisions,revisions.players[0],'answers',{roundId:revisionRound.id,answers:freshAnswers,answerRevision:20});
+for(const revision of [19,20])assert.throws(()=>apply(revisions,revisions.players[0],'answers',{roundId:revisionRound.id,answers:Array(7).fill('stale'),answerRevision:revision}),error=>error.status===409);
+for(const revision of [0,-1,1.5,'21',Number.MAX_SAFE_INTEGER+1])assert.throws(()=>apply(revisions,revisions.players[0],'answers',{roundId:revisionRound.id,answers:freshAnswers,answerRevision:revision}),error=>error.status===400);
+for(const invalid of [Array(6).fill(''),Array(8).fill(''),Array(7).fill(null),Array(7).fill('x'.repeat(101))])assert.throws(()=>apply(revisions,revisions.players[0],'answers',{roundId:revisionRound.id,answers:invalid,answerRevision:21}),error=>error.status===400);
+assert.deepEqual(revisionRound.players[0].answers,freshAnswers);assert.equal(revisionRound.players[0].answerRevision,20);
+assert.equal(view(revisions,revisions.players[1]).round.players[0].answerRevision,undefined);
+apply(revisions,revisions.players[0],'submit',{roundId:revisionRound.id,answers:freshAnswers,answerRevision:21});
+assert.throws(()=>apply(revisions,revisions.players[0],'answers',{roundId:revisionRound.id,answers:Array(7).fill('stale'),answerRevision:22}),/beküldted/);
+for(const phase of ['lobby','playing','review','finished']){
+ const leaving=makeRoom('444444','h','H','host-secret');leaving.players.push({id:'g',name:'G',hash:'guest-secret',removed:false});
+ if(phase!=='lobby'){
+  apply(leaving,leaving.players[0],'start');const round=leaving.rounds.at(-1);
+  apply(leaving,leaving.players[0],'answers',{roundId:round.id,answers:Array(7).fill(round.letter+' szó')});
+  if(phase!=='playing')apply(leaving,leaving.players[0],'stop',{roundId:round.id});
+  if(phase==='finished')apply(leaving,leaving.players[0],'finish');
+ }
+ const before=leaving.phase==='review'?totalFor(leaving,'h'):null;
+ apply(leaving,leaving.players[0],'leave');assert.equal(leaving.phase,'finished');assert.equal(leaving.players[0].removed,true);
+ if(leaving.rounds.length){assert.ok(leaving.rounds.at(-1).closed);assert.equal(totalFor(leaving,'h'),7);}
+ if(before!==null)assert.equal(totalFor(leaving,'h'),before);
+ const finalView=view(leaving,leaving.players[1]);
+ assert.equal(finalView.phase,'finished');
+ const departedHost=finalView.players.find(p=>p.id==='h');
+ assert.ok(departedHost,'The departed host must remain in the final ranking');
+ assert.equal(departedHost.departed,true);
+ assert.equal(departedHost.total,leaving.rounds.length?7:0);
+ assert.equal(JSON.stringify(finalView).includes('host-secret'),false);
+}
+const finalRanking=makeRoom('666666','h','Host','host-secret');
+finalRanking.players.push({id:'g',name:'Guest',hash:'guest-secret',removed:false},{id:'k',name:'Kicked',hash:'kicked-secret',removed:false});
+apply(finalRanking,finalRanking.players[0],'start');
+const rankingRound=finalRanking.rounds.at(-1);
+apply(finalRanking,finalRanking.players[0],'answers',{roundId:rankingRound.id,answers:Array(7).fill(rankingRound.letter+' host')});
+apply(finalRanking,finalRanking.players[0],'kick',{playerId:'k'});
+apply(finalRanking,finalRanking.players[0],'leave');
+const ranking=view(finalRanking,finalRanking.players[1]).players;
+assert.deepEqual(ranking.map(p=>p.id),['h','g'],'A kicked player must not return to the ranking');
+assert.equal(ranking.find(p=>p.id==='h').total,7);
+assert.equal(ranking.find(p=>p.id==='g').total,0);
+assert.equal(finalRanking.players[0].removed,true,'The departed host token remains revoked');
+const permissions=makeRoom('555555','h','H','h');permissions.players.push({id:'g',name:'G',hash:'g',removed:false});
+for(const action of ['start','stop','score','kick','settings','finish'])assert.throws(()=>apply(permissions,permissions.players[1],action),error=>error.status===403,action);
+assert.throws(()=>apply(permissions,permissions.players[0],'kick',{playerId:'h'}),/házigazda/);
+apply(permissions,permissions.players[0],'start');const kickRound=permissions.rounds.at(-1);
+apply(permissions,permissions.players[0],'submit',{roundId:kickRound.id,answers:Array(7).fill(kickRound.letter+' szó')});
+apply(permissions,permissions.players[0],'kick',{playerId:'g'});assert.equal(permissions.phase,'review');
+assert.equal(totalFor(permissions,'h'),7);
 console.log('PASS: minimum three Unicode letters; accents and supplementary letters; numbers/punctuation cannot bypass minimum; normalized duplicates; 6-digit codes; 7 distinct topics; nonrepeating letter deck; hidden answers; 1/0 scoring; locked submissions; host permissions; score edits; kick; stale rounds; timeout.');
+console.log('PASS: draft revisions reject older/equal saves; invalid revisions/answer shapes do not mutate; revision privacy; submitted drafts lock; atomic host exit in every phase; guest host-action denial; host cannot be kicked; kick closes a round when only submitted players remain.');
 if(!process.argv[2])process.exit(0);
 const base=process.argv[2];
 async function api(action,data={},session,expected=200){const res=await fetch(base+'/api/game',{method:'POST',headers:{'Content-Type':'application/json',...(session?{Authorization:'Bearer '+session.token}:{})},body:JSON.stringify({action,...(session?{code:session.code}:{}),...data})});const json=await res.json();assert.equal(res.status,expected,JSON.stringify(json));return json;}
