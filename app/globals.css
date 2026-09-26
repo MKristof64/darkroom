@@ -29,3 +29,5 @@
  .players .player{gap:7px}
  .modal .review-actions button{min-height:48px}
 }
+
+.modal .exit-error{color:var(--pink);margin:0 0 18px}
