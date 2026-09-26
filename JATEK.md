@@ -4,7 +4,7 @@ Magyar, mobilon és asztali böngészőben játszható társasági szójáték.
 
 - A házigazda becenévvel létrehoz egy szobát, amely véletlen hatjegyű kódot kap.
 - A többiek kóddal vagy meghívólinkkel csatlakoznak; legfeljebb 20 játékos fér el.
-- Körönként egy véletlen betű és a megadott 14 témából pontosan 7 különböző téma jelenik meg.
+- Körönként egy véletlen betű és a megadott 18 témából pontosan 7 különböző téma jelenik meg.
 - A válaszokat folyamatosan mentjük. Beküldés után zároljuk őket. Az összes beküldés, a házigazdai lezárás vagy az idő lejárta pontozást indít.
 - Egyedi helyes kezdőbetűjű válasz: **1 pont**. Azonos válasz: **0 pont**. Üres vagy hibás kezdőbetűjű válasz: **0 pont**.
 - A kis- és nagybetűk, ékezetpárok és felesleges szóközök nem számítanak eltérésnek.
