@@ -1,0 +1,60 @@
+body {
+  min-height: 100dvh;
+  position: relative;
+  isolation: isolate;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::before {
+  inset: -3%;
+  background:
+    radial-gradient(ellipse at 0% 4%, #d7337352, transparent 49%),
+    radial-gradient(ellipse at 104% 25%, #824bd84d, transparent 47%),
+    radial-gradient(ellipse at 95% 100%, #248f8a2b, transparent 48%),
+    radial-gradient(ellipse at -8% 95%, #9d2c513d, transparent 47%),
+    linear-gradient(125deg, transparent 30%, #a55ed817 41%, transparent 53%),
+    linear-gradient(145deg, #130b1d 8%, #130f22 48%, #0b141b 100%);
+  animation: ambient-breathe 24s ease-in-out infinite alternate;
+}
+
+body::after {
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 630px 440px at calc(100% + 200px) 190px, transparent 65%, #d2a0ed1c 65.1%, #d2a0ed1c 65.35%, transparent 65.5%),
+    radial-gradient(ellipse 630px 440px at calc(100% + 200px) 190px, transparent 75%, #d2a0ed0d 75.1%, #d2a0ed0d 75.3%, transparent 75.5%),
+    radial-gradient(ellipse 600px 450px at -240px 95%, transparent 70%, #83d9ce19 70.1%, #83d9ce19 70.35%, transparent 70.5%),
+    repeating-linear-gradient(125deg, transparent 0 148px, #dc9bec05 148px 149px, transparent 149px 298px),
+    url('/darkroom-grain.svg');
+  background-size: auto, auto, auto, auto, 180px 180px;
+}
+
+.app {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes ambient-breathe {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: .8; transform: scale(1.035); }
+}
+
+@media (max-width: 650px) {
+  body::before {
+    background:
+      radial-gradient(ellipse at -15% 0%, #d733735c, transparent 50%),
+      radial-gradient(ellipse at 110% 26%, #824bd84d, transparent 52%),
+      radial-gradient(ellipse at 110% 100%, #248f8a2b, transparent 47%),
+      linear-gradient(145deg, #130b1d, #130f22 48%, #0b141b);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
+}
