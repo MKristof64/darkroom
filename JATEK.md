@@ -1,4 +1,4 @@
-# Ország–Város · After Dark
+# Ország–Város · Darkroom
 
 Magyar, mobilon és asztali böngészőben játszható társasági szójáték.
 
